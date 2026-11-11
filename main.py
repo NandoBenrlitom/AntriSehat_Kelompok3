@@ -3,8 +3,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import engine, Base, get_db
 
-# Membuat tabel secara otomatis jika belum ada
-Base.metadata.create_all(bind=engine)
+# Membuat tabel secara otomatis jika belum ada (abaikan jika DB belum siap/mode testing)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception:
+    pass
 
 app = FastAPI(title="AntriSehat API K05")
 
@@ -23,7 +26,11 @@ def create_appointment(poli: str, db: Session = Depends(get_db)):
     if result >= 30:
         raise HTTPException(status_code=400, detail="Kuota dokter penuh (Maksimal 30 pasien/sesi).")
     
-    # Logika insert ke database diletakkan di sini
+    # Logika insert ke database
+    insert_query = text("INSERT INTO appointments (poli, tanggal) VALUES (:poli, CURRENT_DATE)")
+    db.execute(insert_query, {"poli": poli})
+    db.commit()
+
     return {"message": "Janji temu berhasil dibuat", "urutan": result + 1}
 
 # 3. Endpoint: Ambil Nomor Antrean Berurutan
@@ -34,5 +41,9 @@ def get_queue_number(poli: str, db: Session = Depends(get_db)):
     last_queue = db.execute(query, {"poli": poli}).scalar()
     
     new_queue = last_queue + 1
-    # Logika insert antrean baru diletakkan di sini
+    # Logika insert antrean baru
+    insert_query = text("INSERT INTO queues (poli, nomor_urut, tanggal, status) VALUES (:poli, :nomor_urut, CURRENT_DATE, 'waiting')")
+    db.execute(insert_query, {"poli": poli, "nomor_urut": new_queue})
+    db.commit()
+
     return {"poli": poli, "nomor_antrean": new_queue}

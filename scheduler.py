@@ -1,10 +1,14 @@
 import psycopg2
 import os
+import time
 from dotenv import load_dotenv
 
 load_dotenv()
 
 def reset_daily_queues():
+    print("Menunggu aplikasi menginisialisasi database...")
+    time.sleep(10)  # Tunda 10 detik agar tabel sempat terbuat
+
     print("Menjalankan Job Scheduler: Mereset antrean harian AntriSehat...")
     try:
         conn = psycopg2.connect(
