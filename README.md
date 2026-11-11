@@ -293,18 +293,98 @@ Pipeline otomatisasi didefinisikan pada file `Jenkinsfile` dengan alur:
    * **Which events would you like to trigger this webhook?**: Pilih `Just the push event.`
    * Klik **Add webhook**. Setiap `git push` akan otomatis memicu build pipeline di Jenkins!
 
+### 📌 Panduan Workflow Git untuk Anggota Tim (Windows 11)
 
-### Langkah Mengerjakan Fitur/Bagian Setiap Individu (Untuk Anggota Tim)
+Agar pengembangan fitur berjalan rapi, tidak terjadi konflik kode, dan *pipeline* CI/CD Jenkins berjalan stabil, seluruh anggota tim **dilarang melakukan push langsung ke branch `main**`. Setiap fitur atau tugas baru wajib dibuat di branch fiturnya masing-masing.
 
-```bash
-# 1. Pastikan berada di branch development & mengambil update terbaru
+---
+
+#### Langkah 1: Update Kode Terbaru dari `main`
+
+Sebelum mulai membuat fitur baru, pastikan kodemu adalah versi paling mutakhir dari repositori.
+
+Buka **PowerShell** di folder proyek, lalu jalankan:
+
+```powershell
+# 1. Pindah ke branch main
 git checkout main
+
+# 2. Tarik update terbaru dari GitHub
 git pull origin main
 
-# 2. Buat branch fitur baru
-git checkout -b feature/nama-fitur-kalian
+```
 
-# 3. Lakukan pengodean dan simpan perubahan
+---
+
+#### Langkah 2: Buat Branch Fitur Baru
+
+Buat branch baru sesuai nama fitur yang sedang kamu kerjakan (contoh: `feature/qa-pytest` atau `feature/jenkinsfile`).
+
+```powershell
+# Format: git checkout -b feature/nama-fitur-kalian
+git checkout -b feature/tambah-unit-test
+
+```
+
+---
+
+#### Langkah 3: Pengodean & Pengujian Lokal
+
+1. Aktifkan *Virtual Environment* Python di Windows:
+```powershell
+.\venv\Scripts\activate
+
+```
+
+
+2. Jalankan pengujian atau rakit container lokal jika diperlukan:
+```powershell
+docker compose up --build -d
+
+```
+
+
+3. Tulis/edit kode sesuai tugas masing-masing.
+
+---
+
+#### Langkah 4: Simpan & Unggah Branch Fitur ke GitHub
+
+Setelah fitur selesai dibuat dan diuji secara lokal, simpan perubahan dan *push* branch fiturnya ke GitHub:
+
+```powershell
+# 1. Tandai semua file yang diubah
 git add .
-git commit -m "feat: menjelaskan fitur yang dibuat"
 
+# 2. Simpan commit dengan pesan yang jelas
+git commit -m "feat: (jelaskan fitur barumu)"
+
+# 3. Push branch fitur ke GitHub
+git push -u origin feature/namamu-fituryangditambah
+
+```
+
+---
+
+#### Langkah 5: Buat Pull Request (PR) di Web GitHub
+
+1. Buka halaman repositori **AntriSehat** di browser GitHub.
+2. Kamu akan melihat spanduk kuning bertuliskan **"Compare & pull request"** untuk branch fiturnya. Klik tombol tersebut.
+3. Beri judul dan deskripsi singkat mengenai perubahan yang kamu buat.
+4. Klik **Create pull request**.
+5. Beritahu **Nanda (Tech Lead)** di grup untuk melakukan *review* dan penggabungan (*merge*) ke branch `main`.
+
+---
+
+#### Langkah 6: Bersihkan Branch Lokal (Setelah PR Di-merge)
+
+Jika PR sudah disetujui dan digabungkan oleh Tech Lead ke `main`:
+
+```powershell
+# 1. Kembali ke branch main lokal
+git checkout main
+
+# 2. Tarik hasil merge terbaru dari GitHub
+git pull origin main
+
+```
