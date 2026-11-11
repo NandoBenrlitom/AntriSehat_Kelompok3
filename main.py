@@ -2,10 +2,11 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import engine, Base, get_db
+import models
 
 # Membuat tabel secara otomatis jika belum ada (abaikan jika DB belum siap/mode testing)
 try:
-    Base.metadata.create_all(bind=engine)
+    models.Base.metadata.create_all(bind=engine)
 except Exception:
     pass
 
