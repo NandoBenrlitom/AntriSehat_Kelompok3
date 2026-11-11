@@ -46,11 +46,3 @@ class Appointment(Base):
     id = Column(Integer, primary_key=True, index=True)
     poli = Column(String(50), nullable=False, index=True)
     tanggal = Column(Date, default=func.current_date(), nullable=False)
-
-
-class Appointment(Base):
-    __tablename__ = "appointments"
-
-    id = Column(Integer, primary_key=True, index=True)
-    poli = Column(String(50), nullable=False, index=True)
-    tanggal = Column(Date, default=func.current_date(), nullable=False)
