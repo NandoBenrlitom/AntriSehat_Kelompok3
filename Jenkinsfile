@@ -2,11 +2,12 @@ pipeline {
     agent any
 
     triggers {
+        githubPush()
         cron('H 1 * * *')
     }
 
     environment {
-        IMAGE = 'dockerhubuser/antrisehat'
+        IMAGE = 'haidarmirza/antrisehat'
         TAG = "${env.BUILD_NUMBER}"
     }
 
@@ -44,7 +45,12 @@ pipeline {
         }
         stage('Smoke Test') {
             steps {
-                sh 'sleep 15 && curl -fsS http://localhost:8000/health'
+                sh '''
+                    sleep 15
+                    curl -fsS http://localhost:8000/health || \
+                    curl -fsS http://172.17.0.1:8000/health || \
+                    curl -fsS http://host.docker.internal:8000/health
+                '''
             }
         }
     }

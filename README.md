@@ -249,12 +249,12 @@ docker build --target test -t antrisehat:test .
 
 ---
 
-## 🔄 Integrasi CI/CD (Jenkins)
+## 🔄 Integrasi CI/CD (Jenkins & Ngrok Port 8080)
 
 Pipeline otomatisasi didefinisikan pada file `Jenkinsfile` dengan alur:
 
 ```
-[ Git Push / Cron ] 
+[ Git Push / GitHub Webhook (via Ngrok :8080) ] 
         ▼
    Stage: Checkout     ──▶ Mengambil source code terbaru dari branch SCM
         ▼
@@ -268,3 +268,28 @@ Pipeline otomatisasi didefinisikan pada file `Jenkinsfile` dengan alur:
         ▼
    Stage: Smoke Test   ──▶ Memvalidasi endpoint /health aktif via curl
 ```
+
+### 🌐 Menjalankan Jenkins & Tunnel Ngrok pada Port 8080
+
+1. **Jalankan Jenkins di Port 8080**:
+   ```bash
+   # Opsi A: Jalankan container existing
+   docker start jenkins-docker
+
+   # Opsi B: Jalankan via profil Docker Compose
+   docker compose --profile ci up -d jenkins
+   ```
+
+2. **Jalankan Tunnel Ngrok untuk Meneruskan Port 8080**:
+   ```bash
+   ngrok http 8080
+   ```
+   *(Atau jalankan skrip praktis: `./start_ci_tunnel.sh`)*
+
+3. **Konfigurasi Webhook di GitHub Repository**:
+   * Buka **Settings** ➔ **Webhooks** ➔ **Add webhook**
+   * **Payload URL**: `https://<SUBDOMAIN_NGROK>.ngrok-free.app/github-webhook/`
+   * **Content type**: `application/json`
+   * **Which events would you like to trigger this webhook?**: Pilih `Just the push event.`
+   * Klik **Add webhook**. Setiap `git push` akan otomatis memicu build pipeline di Jenkins!
+
