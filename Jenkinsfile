@@ -19,7 +19,7 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh 'docker build --target test -t $IMAGE:test .'
+                bat 'docker build --target test -t $IMAGE:test .'
             }
         }
         stage('Build Image') {
