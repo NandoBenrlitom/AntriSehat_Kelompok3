@@ -293,3 +293,18 @@ Pipeline otomatisasi didefinisikan pada file `Jenkinsfile` dengan alur:
    * **Which events would you like to trigger this webhook?**: Pilih `Just the push event.`
    * Klik **Add webhook**. Setiap `git push` akan otomatis memicu build pipeline di Jenkins!
 
+
+### Langkah Mengerjakan Fitur/Bagian Setiap Individu (Untuk Anggota Tim)
+
+```bash
+# 1. Pastikan berada di branch development & mengambil update terbaru
+git checkout main
+git pull origin main
+
+# 2. Buat branch fitur baru
+git checkout -b feature/nama-fitur-kalian
+
+# 3. Lakukan pengodean dan simpan perubahan
+git add .
+git commit -m "feat: menjelaskan fitur yang dibuat"
+
