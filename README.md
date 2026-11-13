@@ -1,44 +1,51 @@
-# AntriSehat - Sistem Manajemen Antrean & Janji Temu Faskes
+# 🏥 AntriSehat — Sistem Manajemen Antrean & Janji Temu Faskes
 
-Tugas Besar Komputasi Awan (Cloud Computing) — Kelas IS-07-01  
-**Kelompok 3 (K05)**
+> **Tugas Besar Komputasi Awan (Cloud Computing)** — Kelas IS-07-01 | **Kelompok 3 (K05)**
 
-### 👥 Anggota Kelompok
-* **Nanda Pratama Sugiarto** (10206240019)
-* **Muhammad Haidar Mirza** (102062400151)
-* **Veny Etika Dzakiyyah** (102062400108)
-* **Kurnia Ragil Wulansari** (102062400047)
+Sistem backend berbasis **REST API Cloud-Native** untuk mengelola antrean pasien dan reservasi janji temu di fasilitas kesehatan (klinik / puskesmas) secara tertib, otomatis, dan berurutan — dikemas penuh dalam container Docker dengan pipeline CI/CD otomatis via Jenkins dan Ngrok.
+
+---
+
+## 👥 Anggota Kelompok
+
+| Nama | NIM |
+| :--- | :--- |
+| **Nanda Pratama Sugiarto** | 102062400019 |
+| **Muhammad Haidar Mirza** | 102062400151 |
+| **Veny Etika Dzakiyyah** | 102062400108 |
+| **Kurnia Ragil Wulansari** | 102062400047 |
 
 ---
 
 ## 📌 Tentang Proyek
 
-**AntriSehat** adalah sistem backend berbasis RESTful API dan Cloud Native Architecture yang dirancang untuk mengelola antrean pasien dan reservasi janji temu poli kesehatan (klinik/puskesmas) secara tertib, otomatis, dan berurutan.
-
-Sistem ini dirancang dengan prinsip **Cloud Computing**, memisahkan service API, basis data, dan penjadwal tugas (*job scheduler*) ke dalam container terisolasi, didukung pipeline CI/CD otomatis (*Continuous Integration & Continuous Deployment*) menggunakan Jenkins.
+**AntriSehat** mengimplementasikan prinsip **Cloud-Native Architecture** dengan memisahkan service API, basis data, dan job scheduler ke dalam container terisolasi yang saling berkomunikasi melalui jaringan Docker internal. Sistem didukung pipeline CI/CD otomatis yang terpicu oleh setiap `git push` melalui **GitHub Webhook ↔ Ngrok ↔ Jenkins**.
 
 ### 🌟 Fitur Utama
-1. **Health Check Monitoring (`/health`)**: Endpoint pemeriksaan ketersediaan server untuk pemantauan container (*liveness/readiness probe*) dan *smoke testing*.
-2. **Reservasi Janji Temu (`/appointments`)**: Pendaftaran janji temu pasien dengan validasi pembatasan kuota maksimal 30 pasien per poli per hari.
-3. **Penomoran Antrean Berurutan (`/queues`)**: Generator nomor antrean otomatis dan berurutan secara harian per poli.
-4. **Daily Queue Scheduler (`scheduler.py`)**: Layanan pembersih harian otomatis untuk memperbarui status antrean kedaluwarsa (*expired*) dan mereset giliran antrean di hari berikutnya.
-5. **Containerized Multi-Stage & CI/CD**: Pengujian otomatis dan *deployment* nirhenti menggunakan Docker multi-stage build dan Jenkins Pipeline.
+
+| # | Fitur | Deskripsi |
+| :--- | :--- | :--- |
+| 1 | **Health Check** | Endpoint `/health` sebagai liveness probe untuk monitoring container |
+| 2 | **Janji Temu** | Registrasi antrian dengan validasi batas kuota **30 pasien/poli/hari** |
+| 3 | **Nomor Antrean** | Generator nomor antrean berurutan otomatis, reset setiap hari |
+| 4 | **Daily Scheduler** | Background worker yang menandai antrean kadaluwarsa setiap hari |
+| 5 | **CI/CD Otomatis** | Build → Test → Push → Deploy dipicu otomatis dari `git push` |
 
 ---
 
-## 🛠️ Tech Stack & Ekosistem
+## 🛠️ Tech Stack
 
-| Komponen | Teknologi | Deskripsi / Peran |
+| Lapisan | Teknologi | Peran |
 | :--- | :--- | :--- |
-| **Backend Framework** | [FastAPI](https://fastapi.tiangolo.com/) | Framework API asinkron Python dengan performa tinggi & dokumentasi interaktif OpenAPI/Swagger |
-| **ASGI Server** | [Uvicorn](https://www.uvicorn.org/) | Server HTTP asinkron untuk menjalankan aplikasi FastAPI |
-| **Database** | [PostgreSQL 15 (Alpine)](https://www.postgresql.org/) | RDBMS utama untuk penyimpanan relasional data antrean dan janji temu |
-| **ORM & Driver** | [SQLAlchemy](https://www.sqlalchemy.org/) & `psycopg2-binary` | Object Relational Mapping dan driver database PostgreSQL |
-| **Testing** | [Pytest](https://docs.pytest.org/) & [HTTPX](https://www.python-httpx.org/) | Automated unit testing & HTTP client testing (`TestClient`) |
-| **Containerization** | [Docker](https://www.docker.com/) | Multi-stage packaging container (`base`, `deps`, `test`, `production`) |
-| **Orchestration** | [Docker Compose](https://docs.docker.com/compose/) | Manajemen multi-container (`app`, `scheduler`, `db`) dan isolasi network |
-| **CI/CD Pipeline** | [Jenkins](https://www.jenkins.io/) | Automasi pengujian (*test*), perakitan (*build*), publikasi ke Docker Hub, dan *smoke test* |
-| **Konfigurasi** | `python-dotenv` | Manajemen variabel lingkungan melalui berkas `.env` |
+| **Backend API** | [FastAPI](https://fastapi.tiangolo.com/) + [Uvicorn](https://www.uvicorn.org/) | Framework REST API asinkron, server ASGI |
+| **Database** | [PostgreSQL 15 Alpine](https://www.postgresql.org/) | Penyimpanan data relasional persisten |
+| **ORM / Driver** | [SQLAlchemy](https://www.sqlalchemy.org/) + `psycopg2-binary` | Object Relational Mapping & driver PostgreSQL |
+| **Testing** | [Pytest](https://docs.pytest.org/) + [HTTPX](https://www.python-httpx.org/) | Unit test & HTTP integration test |
+| **Container** | [Docker](https://www.docker.com/) (multi-stage build) | Packaging `base` → `deps` → `test` → `production` |
+| **Orkestrasi** | [Docker Compose](https://docs.docker.com/compose/) | Manajemen service `app`, `scheduler`, `db`, `jenkins` |
+| **CI/CD** | [Jenkins](https://www.jenkins.io/) LTS (port 8080) | Pipeline otomatis via Declarative Jenkinsfile |
+| **Tunnel** | [Ngrok](https://ngrok.com/) (port 8080) | Webhook GitHub → Jenkins lokal via tunnel publik |
+| **Konfigurasi** | `python-dotenv` + `.env` | Manajemen variabel lingkungan |
 
 ---
 
@@ -46,345 +53,514 @@ Sistem ini dirancang dengan prinsip **Cloud Computing**, memisahkan service API,
 
 ```text
 AntriSehat_Kelompok3/
-├── .env                  # Konfigurasi environment variables (database credentials, host, image user)
-├── .gitattributes        # Konfigurasi penanganan EOL & atribut Git
-├── compose.yaml          # Orkestrasi multi-container Docker Compose (app, scheduler, db, network)
-├── Dockerfile            # Multi-stage Docker build: base -> deps -> test -> production
-├── Jenkinsfile           # Skrip declarative pipeline CI/CD Jenkins
-├── requirements.txt      # Daftar dependensi pustaka Python
-├── main.py               # Entrypoint aplikasi FastAPI (definisi route API dan validasi kuota)
-├── database.py           # Inisialisasi koneksi database PostgreSQL & sesi SQLAlchemy
-├── scheduler.py          # Background worker/cron job untuk reset & pembaruan status antrean harian
-├── test_main.py          # Skrip pengujian otomatis unit & integrasi API menggunakan Pytest
-└── README.md             # Dokumentasi teknis proyek
+│
+├── 📄 main.py               # Entrypoint FastAPI: definisi route API & validasi kuota
+├── 📄 database.py           # Koneksi PostgreSQL, engine SQLAlchemy, & session get_db()
+├── 📄 models.py             # Deklarasi model ORM: Doctor, Schedule, Queue, Appointment
+├── 📄 scheduler.py          # Background worker: reset status antrean kadaluwarsa harian
+├── 📄 test_main.py          # Automated testing (pytest + SQLite in-memory)
+│
+├── 🐳 Dockerfile            # Multi-stage build: base → deps → test → production
+├── 🐳 compose.yaml          # Orkestrasi Docker: app, scheduler, db, jenkins (profile ci)
+├── 📄 Jenkinsfile           # Declarative CI/CD Pipeline: Test→Build→Push→Deploy→SmokeTest
+│
+├── 📄 requirements.txt      # Daftar dependensi Python
+├── 📄 .env                  # Konfigurasi lingkungan aktif (TIDAK di-commit ke Git)
+├── 📄 .env.example          # Template variabel lingkungan untuk referensi
+├── 📄 .gitignore            # Pola file yang dikecualikan dari Git
+├── 📄 .gitattributes        # Konfigurasi EOL & atribut Git
+│
+├── 📄 start_ci_tunnel.sh    # Skrip otomatis: jalankan Jenkins + buka tunnel Ngrok :8080
+└── 📄 README.md             # Dokumentasi proyek ini
 ```
 
-### 🔍 Penjelasan Komponen File:
-* **`main.py`**: Mendefinisikan endpoint REST API:
-  * `GET /health`: Cek kesehatan aplikasi.
-  * `POST /appointments`: Pembuatan janji temu baru dengan validasi batas kuota 30 pasien.
-  * `POST /queues`: Pengambilan nomor antrean berurutan secara harian per poli.
-* **`database.py`**: Menangani konfigurasi *connection string* ke PostgreSQL, pembuatan engine `SessionLocal`, serta dependency injection `get_db()`.
-* **`scheduler.py`**: Script mandiri (*standalone worker*) yang bertugas menandai antrean dari hari sebelumnya yang masih menggantung (*status = 'waiting'*) menjadi *'expired'*.
-* **`compose.yaml`**: Mendefinisikan 3 layanan:
-  * `app`: Menjalankan REST API FastAPI pada port 8000 (terhubung ke network `frontend` dan `backend`).
-  * `scheduler`: Menjalankan background worker `python scheduler.py` (terhubung ke network `backend`).
-  * `db`: PostgreSQL 15 dengan persistensi volume `pg_data` dan healthcheck `pg_isready` (terisolasi pada network `backend` internal).
-* **`Dockerfile`**: Menggunakan teknik *multi-stage build*:
-  * Target `test`: Menjalankan `pytest -v` untuk verifikasi build pada pipeline CI/CD.
-  * Target `production`: Menjalankan server aplikasi production dengan `uvicorn`.
-* **`Jenkinsfile`**: Mengatur tahapan CI/CD: *Checkout* ➔ *Test* ➔ *Build Image* ➔ *Push Image ke Docker Hub* ➔ *Deploy via Compose* ➔ *Smoke Test* (`/health`).
-* **`test_main.py`**: Berisi automated tests untuk memastikan endpoint `/health` merespons `200 OK` dan pembatasan kuota janji temu (maksimal 30) menolak request ke-31 dengan kode status `400 Bad Request`.
+### 🔍 Penjelasan Komponen Utama
 
----
+**`main.py`** — Mendefinisikan tiga endpoint REST API:
+- `GET  /health` — Liveness probe, selalu mengembalikan `{"status": "OK"}`.
+- `POST /appointments?poli=<nama>` — Buat janji temu; menolak (HTTP 400) bila kuota ≥ 30.
+- `POST /queues?poli=<nama>` — Ambil nomor antrean berurutan harian.
 
-## ⚙️ Langkah Kerja & Alur Jalannya Program
+**`models.py`** — Skema database dengan empat tabel:
+- `doctors` — Data dokter per poli.
+- `schedules` — Jadwal praktik dokter & kuota maksimal.
+- `queues` — Nomor antrean harian per poli (status: `waiting` / `expired`).
+- `appointments` — Rekaman janji temu per poli per hari.
 
-### 1. Arsitektur Jaringan & Layanan
-```
-  [ Klien / Pasien / Frontend ]
-               │
-               ▼ (Port 8000)
-    ┌───────────────────── Jaringan 'frontend' ─────────────────────┐
-    │                                                               │
-    │   ┌───────────────────────────────────────────────────────┐   │
-    │   │                  Container 'app'                      │   │
-    │   │            (FastAPI + Uvicorn Server)                 │   │
-    │   └──────────────────────────┬────────────────────────────┘   │
-    └──────────────────────────────┼────────────────────────────────┘
-                                   │
-    ┌────────────────────── Jaringan 'backend' (Internal) ──────────┐
-    │                              │                                │
-    │                              ▼                                │
-    │   ┌───────────────────────────────────────────────────────┐   │
-    │   │                  Container 'db'                       │   │
-    │   │               (PostgreSQL 15 Engine)                  │   │
-    │   │                  Volume: pg_data                      │   │
-    │   └──────────────────────────▲────────────────────────────┘   │
-    │                              │                                │
-    │   ┌──────────────────────────┴────────────────────────────┐   │
-    │   │               Container 'scheduler'                   │   │
-    │   │               (Daily Reset Worker)                    │   │
-    │   └───────────────────────────────────────────────────────┘   │
-    └───────────────────────────────────────────────────────────────┘
-```
+**`scheduler.py`** — Standalone worker yang menandai antrean dari hari sebelumnya menjadi `'expired'` dengan mekanisme retry otomatis (10x, interval 3 detik).
 
-### 2. Alur Eksekusi Program (End-to-End Lifecycle)
-
-1. **Inisialisasi Container & Database**:
-   * Saat `docker compose up` dijalankan, container `db` menyala terlebih dahulu.
-   * Container `app` dan `scheduler` menunggu hingga pemeriksaan *healthcheck* PostgreSQL (`pg_isready`) berstatus *healthy*.
-   * Pada saat `app` dimuat, SQLAlchemy mengeksekusi `Base.metadata.create_all(bind=engine)` untuk memastikan tabel data siap digunakan.
-
-2. **Alur Pembuatan Janji Temu (`POST /appointments`)**:
-   * Klien mengirim request parameter nama poli: `POST /appointments?poli=Gigi`.
-   * Sistem menghitung jumlah janji temu yang tercatat untuk poli terkait pada hari ini (`tanggal = CURRENT_DATE`).
-   * **Validasi Kuota**: Jika jumlah janji temu sudah $\ge 30$, sistem langsung melempar exception `HTTP 400: Kuota dokter penuh (Maksimal 30 pasien/sesi)`.
-   * Jika kuota masih tersedia, sistem mengonfirmasi dan mengembalikan nomor urutan janji temu.
-
-3. **Alur Pengambilan Nomor Antrean (`POST /queues`)**:
-   * Klien meminta nomor antrean harian: `POST /queues?poli=Umum`.
-   * Sistem memeriksa nomor antrean paling akhir pada hari ini: `SELECT COALESCE(MAX(nomor_urut), 0)`.
-   * Sistem menambahkan nomor baru (`last_queue + 1`) sehingga antrean selalu berurutan mulai dari nomor 1 setiap harinya.
-
-4. **Alur Penjadwalan Pembersihan (`scheduler.py`)**:
-   * Scheduler berjalan di latar belakang untuk melakukan pembersihan berkala (*maintenance job*).
-   * Menjalankan query pembaruan status:
-     ```sql
-     UPDATE queues SET status = 'expired' WHERE tanggal < CURRENT_DATE AND status = 'waiting'
-     ```
-   * Memastikan nomor antrean untuk tanggal baru direset kembali ke 1 dan data lama diarsipkan dengan status kedaluwarsa.
-
-5. **Siklus Otomasi CI/CD (Jenkins)**:
-   * **Trigger**: Pipeline terpicu oleh commit baru atau cron terjadwal (`cron('H 1 * * *')`).
-   * **Stage Test**: Jenkins merakit target `test` dari Dockerfile dan menjalankan `pytest -v`. Bila pengujian gagal, pipeline langsung berhenti (*fail-fast*).
-   * **Stage Build & Push**: Image versi production dirakit dan diberi tag `${BUILD_NUMBER}` serta `latest`, lalu diunggah ke Docker Hub.
-   * **Stage Deploy**: Lingkungan produksi melakukan `docker compose pull` dan me-restart container dengan versi terbaru.
-   * **Stage Smoke Test**: Menjalankan pengujian akhir dengan memanggil `curl -fsS http://localhost:8000/health` untuk memastikan server aktif tanpa gangguan.
+**`compose.yaml`** — Mendefinisikan empat service:
+- `app` — FastAPI server di port `8000`, terhubung ke jaringan `frontend` dan `backend`.
+- `scheduler` — Worker `python scheduler.py`, hanya di jaringan `backend`.
+- `db` — PostgreSQL 15 dengan volume persisten `pg_data` dan healthcheck `pg_isready`.
+- `jenkins` _(profile `ci`)_ — Jenkins LTS di port `8080` untuk CI/CD lokal.
 
 ---
 
 ## 🚀 Panduan Instalasi & Menjalankan Aplikasi
 
-### Prasyarat Sistem
-* [Docker](https://docs.docker.com/get-docker/) & [Docker Compose](https://docs.docker.com/compose/install/)
-* [Python 3.11+](https://www.python.org/) *(opsional, jika ingin menjalankan secara lokal tanpa Docker)*
-* [Git](https://git-scm.com/)
+### ✅ Prasyarat
+
+Pastikan software berikut sudah terpasang di sistem Anda:
+
+| Software | Versi Minimum | Cek Versi |
+| :--- | :--- | :--- |
+| [Docker](https://docs.docker.com/get-docker/) | 24.x | `docker --version` |
+| [Docker Compose](https://docs.docker.com/compose/install/) | v2.x | `docker compose version` |
+| [Git](https://git-scm.com/) | — | `git --version` |
+| Python 3.11+ *(opsional, untuk dev lokal)* | 3.11 | `python --version` |
 
 ---
 
-### Metode 1: Menggunakan Docker Compose (Direkomendasikan)
+### 🐳 Metode 1: Docker Compose dari Image Docker Hub *(Produksi — Direkomendasikan)*
 
-1. **Clone Repository & Masuk ke Direktori Proyek**:
-   ```bash
-   git clone https://github.com/NandoBenrlitom/AntriSehat_Kelompok3
-   cd AntriSehat_Kelompok3
-   ```
+Metode ini menarik image yang sudah dibangun dari Docker Hub — **tidak memerlukan source code lokal**.
 
-2. **Konfigurasi Environment Variables**:
-   Pastikan file `.env` sudah ada dan terkonfigurasi dengan benar:
-   ```env
-   DB_HOST=db
-   DB_USER=postgres
-   DB_PASSWORD=rahasia_sehat_123
-   DB_NAME=antrisehat_db
-   DOCKERHUB_USER=haidarmirza
-   ```
+#### Langkah-langkah:
 
-3. **Build dan Jalankan Container**:
-   ```bash
-   docker compose up --build -d
-   ```
+**1. Clone repository dan masuk ke direktori proyek:**
+```bash
+git clone https://github.com/NandoBenrlitom/AntriSehat_Kelompok3.git
+cd AntriSehat_Kelompok3
+```
 
-4. **Periksa Status Layanan**:
-   ```bash
-   docker compose ps
-   ```
+**2. Buat file `.env` dari template:**
+```bash
+cp .env.example .env
+```
 
-5. **Akses Layanan**:
-   * **API Base URL**: `http://localhost:8000`
-   * **Health Check**: [http://localhost:8000/health](http://localhost:8000/health)
-   * **Dokumentasi Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
-   * **Dokumentasi ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+**3. Isi variabel di `.env`:**
+```env
+# Konfigurasi Database PostgreSQL
+DB_HOST=db
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=ganti_dengan_password_aman
+DB_NAME=antrisehat_db
 
-6. **Menghentikan Layanan**:
-   ```bash
-   docker compose down
-   ```
+# Username Docker Hub pemilik image
+DOCKERHUB_USER=haidarmirza
+```
+
+> [!IMPORTANT]
+> `DB_HOST=db` harus tetap `db` agar container `app` dapat menjangkau container database melalui jaringan Docker internal.
+
+**4. Jalankan semua service:**
+```bash
+docker compose up -d
+```
+
+**5. Periksa status container:**
+```bash
+docker compose ps
+```
+
+Output yang diharapkan:
+```
+NAME                   STATUS          PORTS
+antrisehat-app         Up (running)    0.0.0.0:8000->8000/tcp
+antrisehat-db          Up (healthy)    5432/tcp
+antrisehat-scheduler   Exited (0)      —
+```
+
+> [!NOTE]
+> `antrisehat-scheduler` berstatus `Exited (0)` adalah **normal** — container ini menjalankan satu pekerjaan (reset antrean) lalu berhenti dengan sukses.
+
+**6. Verifikasi aplikasi berjalan:**
+```bash
+curl http://localhost:8000/health
+# Output: {"status":"OK"}
+```
+
+**7. Akses dokumentasi interaktif Swagger UI:**
+
+Buka browser dan kunjungi: **[http://localhost:8000/docs](http://localhost:8000/docs)**
 
 ---
 
-### Metode 2: Menjalankan Secara Lokal (Local Development)
+### 🔨 Metode 2: Build Lokal dari Source Code *(Development)*
 
-1. **Buat & Aktifkan Virtual Environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # Di Linux/macOS
-   # venv\Scripts\activate   # Di Windows
-   ```
+Metode ini membangun image Docker langsung dari source code — cocok untuk pengembangan.
 
-2. **Instal Dependensi**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+**1. Clone & masuk ke direktori:**
+```bash
+git clone https://github.com/NandoBenrlitom/AntriSehat_Kelompok3.git
+cd AntriSehat_Kelompok3
+```
 
-3. **Pastikan PostgreSQL Lokal Berjalan**:
-   Sesuaikan parameter `DB_HOST=localhost` di berkas `.env`.
+**2. Siapkan file `.env`:**
+```bash
+cp .env.example .env
+# Edit .env sesuai kebutuhan
+```
 
-4. **Jalankan Aplikasi Web**:
-   ```bash
-   uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-   ```
+**3. Build image dan jalankan:**
+```bash
+docker compose -f compose.yaml up --build -d
+```
 
-5. **Jalankan Scheduler Secara Manual**:
-   ```bash
-   python scheduler.py
-   ```
+> [!NOTE]
+> Perintah `--build` memaksa Docker membangun ulang image dari `Dockerfile` di direktori saat ini, mengabaikan image yang tersimpan di cache.
+
+---
+
+### 🐍 Metode 3: Development Lokal Tanpa Docker *(Tanpa Container)*
+
+Gunakan metode ini untuk pengembangan cepat tanpa menjalankan container. Membutuhkan **PostgreSQL lokal** yang sudah berjalan.
+
+**1. Clone & masuk ke direktori:**
+```bash
+git clone https://github.com/NandoBenrlitom/AntriSehat_Kelompok3.git
+cd AntriSehat_Kelompok3
+```
+
+**2. Buat dan aktifkan virtual environment:**
+```bash
+# Linux / macOS
+python -m venv venv
+source venv/bin/activate
+
+# Windows
+python -m venv venv
+venv\Scripts\activate
+```
+
+**3. Install dependensi:**
+```bash
+pip install -r requirements.txt
+```
+
+**4. Siapkan `.env` dengan konfigurasi database lokal:**
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=password_lokal_anda
+DB_NAME=antrisehat_db
+DOCKERHUB_USER=haidarmirza
+```
+
+**5. Buat database PostgreSQL lokal (jika belum ada):**
+```bash
+psql -U postgres -c "CREATE DATABASE antrisehat_db;"
+```
+
+**6. Jalankan aplikasi:**
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+**7. (Opsional) Jalankan scheduler secara manual:**
+```bash
+python scheduler.py
+```
+
+---
+
+## 🔄 Menghentikan & Membersihkan Container
+
+```bash
+# Hentikan semua container (data tetap tersimpan)
+docker compose down
+
+# Hentikan dan hapus semua data volume (reset total)
+docker compose down -v
+```
 
 ---
 
 ## 🧪 Menjalankan Pengujian (Automated Testing)
 
-### Pengujian Lokal
-Untuk menjalankan skrip pengujian unit dan verifikasi batas kuota menggunakan Pytest:
+Pengujian menggunakan **SQLite in-memory** sehingga **tidak memerlukan database aktif**.
+
+### Pengujian di lingkungan lokal:
 ```bash
+# Pastikan venv aktif
 pytest -v
 ```
 
-### Pengujian Berbasis Docker (Identik dengan Pipeline CI)
-Untuk menguji di lingkungan container persis seperti yang dijalankan Jenkins:
+### Pengujian di dalam container Docker (identik dengan pipeline Jenkins):
 ```bash
+# Build target 'test' dari Dockerfile
 docker build --target test -t antrisehat:test .
+
+# Jalankan pengujian dalam container
+docker run --rm antrisehat:test
+```
+
+Output yang diharapkan:
+```
+test_main.py::test_health_check              PASSED  [ 33%]
+test_main.py::test_appointment_quota_limit   PASSED  [ 66%]
+test_main.py::test_get_queue_number          PASSED  [100%]
+
+========================= 3 passed in X.XXs =========================
 ```
 
 ---
 
-## 📡 Dokumentasi Endpoint API
+## 📡 Referensi Endpoint API
 
-| Method | Endpoint | Query Param | Respons Berhasil (200) | Respons Gagal (400) |
-| :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/health` | - | `{"status": "OK"}` | - |
-| `POST` | `/appointments` | `poli` (string) | `{"message": "Janji temu berhasil dibuat", "urutan": 1}` | `{"detail": "Kuota dokter penuh (Maksimal 30 pasien/sesi)."}` |
-| `POST` | `/queues` | `poli` (string) | `{"poli": "Gigi", "nomor_antrean": 1}` | - |
+| Method | Endpoint | Query Param | Deskripsi |
+| :---: | :--- | :--- | :--- |
+| `GET` | `/health` | — | Health check liveness probe |
+| `POST` | `/appointments` | `poli` *(string)* | Buat janji temu; maks 30/poli/hari |
+| `POST` | `/queues` | `poli` *(string)* | Ambil nomor antrean berikutnya |
 
----
+### Contoh Request & Response
 
-## 🔄 Integrasi CI/CD (Jenkins & Ngrok Port 8080)
-
-Pipeline otomatisasi didefinisikan pada file `Jenkinsfile` dengan alur:
-
-```
-[ Git Push / GitHub Webhook (via Ngrok :8080) ] 
-        ▼
-   Stage: Checkout     ──▶ Mengambil source code terbaru dari branch SCM
-        ▼
-   Stage: Test         ──▶ Menjalankan Dockerfile target 'test' (pytest)
-        ▼
-   Stage: Build Image  ──▶ Merakit Docker image versi production
-        ▼
-   Stage: Push Image   ──▶ Login & Push image ke Docker Hub repository
-        ▼
-   Stage: Deploy       ──▶ Menyiapkan file .env dan memperbarui Docker Compose
-        ▼
-   Stage: Smoke Test   ──▶ Memvalidasi endpoint /health aktif via curl
+**Health Check:**
+```bash
+curl http://localhost:8000/health
+# → {"status":"OK"}
 ```
 
-### 🌐 Menjalankan Jenkins & Tunnel Ngrok pada Port 8080
+**Buat Janji Temu (berhasil):**
+```bash
+curl -X POST "http://localhost:8000/appointments?poli=Gigi"
+# → {"message":"Janji temu berhasil dibuat","urutan":1}
+```
 
-1. **Jalankan Jenkins di Port 8080**:
-   ```bash
-   # Opsi A: Jalankan container existing
-   docker start jenkins-docker
+**Buat Janji Temu (kuota penuh):**
+```bash
+# Setelah 30 request untuk poli yang sama:
+curl -X POST "http://localhost:8000/appointments?poli=Gigi"
+# → 400 {"detail":"Kuota dokter penuh (Maksimal 30 pasien/sesi)."}
+```
 
-   # Opsi B: Jalankan via profil Docker Compose
-   docker compose --profile ci up -d jenkins
-   ```
+**Ambil Nomor Antrean:**
+```bash
+curl -X POST "http://localhost:8000/queues?poli=Umum"
+# → {"poli":"Umum","nomor_antrean":1}
 
-2. **Jalankan Tunnel Ngrok untuk Meneruskan Port 8080**:
-   ```bash
-   ngrok http 8080
-   ```
-   *(Atau jalankan skrip praktis: `./start_ci_tunnel.sh`)*
-
-3. **Konfigurasi Webhook di GitHub Repository**:
-   * Buka **Settings** ➔ **Webhooks** ➔ **Add webhook**
-   * **Payload URL**: `https://<SUBDOMAIN_NGROK>.ngrok-free.app/github-webhook/`
-   * **Content type**: `application/json`
-   * **Which events would you like to trigger this webhook?**: Pilih `Just the push event.`
-   * Klik **Add webhook**. Setiap `git push` akan otomatis memicu build pipeline di Jenkins!
-
-### 📌 Panduan Workflow Git untuk Anggota Tim (Windows 11)
-
-Agar pengembangan fitur berjalan rapi, tidak terjadi konflik kode, dan *pipeline* CI/CD Jenkins berjalan stabil, seluruh anggota tim **dilarang melakukan push langsung ke branch `main**`. Setiap fitur atau tugas baru wajib dibuat di branch fiturnya masing-masing.
-
----
-
-#### Langkah 1: Update Kode Terbaru dari `main`
-
-Sebelum mulai membuat fitur baru, pastikan kodemu adalah versi paling mutakhir dari repositori.
-
-Buka **PowerShell** di folder proyek, lalu jalankan:
-
-```powershell
-# 1. Pindah ke branch main
-git checkout main
-
-# 2. Tarik update terbaru dari GitHub
-git pull origin main
-
+curl -X POST "http://localhost:8000/queues?poli=Umum"
+# → {"poli":"Umum","nomor_antrean":2}
 ```
 
 ---
 
-#### Langkah 2: Buat Branch Fitur Baru
+## ⚙️ Alur Kerja Aplikasi
 
-Buat branch baru sesuai nama fitur yang sedang kamu kerjakan (contoh: `feature/qa-pytest` atau `feature/jenkinsfile`).
+### Arsitektur Jaringan Container
 
-```powershell
-# Format: git checkout -b feature/nama-fitur-kalian
-git checkout -b feature/tambah-unit-test
+```
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                 Jaringan 'frontend' (publik)                     │
+  │                                                                  │
+  │   PORT 8000 ◄──┐    PORT 8080 ◄──┐                              │
+  │                │                 │                              │
+  │  ┌─────────────┴───┐  ┌──────────┴─────────┐                   │
+  │  │  Container: app │  │ Container: jenkins  │  (profile: ci)    │
+  │  │  FastAPI+Uvicorn│  │  Jenkins LTS        │                   │
+  │  └────────┬────────┘  └────────────────────┘                   │
+  └───────────┼──────────────────────────────────────────────────────┘
+              │
+  ┌───────────┼──────────────────────────────────────────────────────┐
+  │           │       Jaringan 'backend' (internal)                  │
+  │           │                                                      │
+  │  ┌────────▼────────┐    ┌──────────────────────────────────┐    │
+  │  │  Container: db  │    │   Container: scheduler           │    │
+  │  │  PostgreSQL 15  │◄───│   python scheduler.py            │    │
+  │  │  Volume: pg_data│    │   (reset antrean harian)         │    │
+  │  └─────────────────┘    └──────────────────────────────────┘    │
+  └──────────────────────────────────────────────────────────────────┘
+```
 
+### Alur Eksekusi Program
+
+```
+docker compose up
+       │
+       ▼
+  [db] PostgreSQL 15 booting...
+       │  healthcheck: pg_isready (interval 10s, retries 5)
+       │
+       ▼ (db: healthy)
+  ┌────┴──────────────────────────┐
+  │                               │
+  ▼                               ▼
+[app] FastAPI + Uvicorn      [scheduler] python scheduler.py
+  │   port 8000                   │   retry 10x (interval 3s)
+  │   create_all tabel            │   UPDATE queues status='expired'
+  │   siap menerima request       │   lalu exit (0)
+  │
+  ▼
+Klien ──► POST /appointments?poli=X
+  │        SELECT COUNT(*) → n
+  │        if n >= 30 → HTTP 400
+  │        else INSERT → HTTP 200 urutan: n+1
+  │
+  └──► POST /queues?poli=X
+         SELECT MAX(nomor_urut) → last
+         INSERT nomor_urut = last + 1
+         HTTP 200 nomor_antrean: last+1
 ```
 
 ---
 
-#### Langkah 3: Pengodean & Pengujian Lokal
+## 🔄 Integrasi CI/CD (Jenkins + Ngrok)
 
-1. Aktifkan *Virtual Environment* Python di Windows:
-```powershell
-.\venv\Scripts\activate
+### Alur Pipeline Otomatis
 
 ```
-
-
-2. Jalankan pengujian atau rakit container lokal jika diperlukan:
-```powershell
-docker compose up --build -d
-
+[ git push ke GitHub ]
+         │
+         ▼
+[ GitHub Webhook ──► Ngrok Tunnel :8080 ──► Jenkins :8080 ]
+         │
+         ▼
+   Stage: Checkout
+         │  checkout scm (clone source code terbaru)
+         ▼
+   Stage: Test
+         │  docker build --target test → pytest -v
+         │  ✗ GAGAL → pipeline berhenti (fail-fast)
+         ▼
+   Stage: Build Image
+         │  docker build -t haidarmirza/antrisehat:$BUILD_NUMBER
+         ▼
+   Stage: Push Image
+         │  docker login → push ke Docker Hub
+         ▼
+   Stage: Deploy
+         │  cp .env → docker compose pull → docker compose up -d
+         ▼
+   Stage: Smoke Test
+         │  sleep 15 → curl /health → HTTP 200?
+         ▼
+   [SUCCESS] Pipeline selesai!
 ```
 
+### Langkah Setup Jenkins + Ngrok
 
-3. Tulis/edit kode sesuai tugas masing-masing.
+#### Prasyarat CI/CD:
+- Container `jenkins-docker` sudah ada (image `jenkins/jenkins:lts`).
+- Volume Docker `jenkins_home` sudah ada: `docker volume create jenkins_home`.
+- Ngrok sudah terkonfigurasi dengan authtoken: `ngrok config add-authtoken <TOKEN>`.
+
+#### 1. Jalankan Jenkins di Port 8080
+
+```bash
+# Jalankan otomatis dengan skrip bawaan:
+./start_ci_tunnel.sh
+
+# ATAU jalankan manual step-by-step:
+docker start jenkins-docker          # nyalakan container Jenkins
+docker compose --profile ci up -d    # atau via Docker Compose (profile ci)
+```
+
+Verifikasi Jenkins aktif: **[http://localhost:8080](http://localhost:8080)**
+
+#### 2. Buka Tunnel Ngrok ke Port 8080
+
+```bash
+ngrok http 8080
+```
+
+Salin **Forwarding URL** HTTPS yang muncul, contoh:
+```
+Forwarding   https://abcd1234.ngrok-free.app → http://localhost:8080
+```
+
+#### 3. Daftarkan Webhook di GitHub
+
+1. Buka repository GitHub → **Settings** → **Webhooks** → **Add webhook**
+2. Isi form:
+   - **Payload URL**: `https://abcd1234.ngrok-free.app/github-webhook/`
+   - **Content type**: `application/json`
+   - **Which events**: `Just the push event`
+3. Klik **Add webhook** ✅
+
+Sekarang setiap `git push` akan memicu build pipeline Jenkins secara otomatis!
+
+#### 4. Konfigurasi Credentials di Jenkins
+
+Masuk ke Jenkins → **Manage Jenkins** → **Credentials**, tambahkan:
+
+| ID | Tipe | Isi |
+| :--- | :--- | :--- |
+| `dockerhub-credentials` | Username & Password | Akun Docker Hub |
+| `antrisehat-env` | Secret File | File `.env` untuk deployment |
 
 ---
 
-#### Langkah 4: Simpan & Unggah Branch Fitur ke GitHub
+## 🗄️ Skema Database
 
-Setelah fitur selesai dibuat dan diuji secara lokal, simpan perubahan dan *push* branch fiturnya ke GitHub:
+```
+doctors
+├── id          INTEGER PK
+├── nama        VARCHAR(100)
+└── poli        VARCHAR(50)
+         │
+         │ One-to-Many
+         ▼
+schedules
+├── id          INTEGER PK
+├── doctor_id   INTEGER FK → doctors.id
+├── hari        VARCHAR(20)   -- 'Senin', 'Selasa', dst.
+├── jam_mulai   TIME
+├── jam_selesai TIME
+└── kuota_maks  INTEGER       -- default: 30
+         │
+         │ One-to-Many
+         ▼
+queues
+├── id          INTEGER PK
+├── poli        VARCHAR(50)
+├── schedule_id INTEGER FK → schedules.id (nullable)
+├── nama_pasien VARCHAR(100)
+├── nomor_urut  INTEGER
+├── tanggal     DATE          -- default: CURRENT_DATE
+└── status      VARCHAR(20)   -- 'waiting' | 'expired'
 
-```powershell
-# 1. Tandai semua file yang diubah
-git add .
-
-# 2. Simpan commit dengan pesan yang jelas
-git commit -m "feat: (jelaskan fitur barumu)"
-
-# 3. Push branch fitur ke GitHub
-git push -u origin feature/namamu-fituryangditambah
-
+appointments
+├── id          INTEGER PK
+├── poli        VARCHAR(50)
+└── tanggal     DATE          -- default: CURRENT_DATE
 ```
 
 ---
 
-#### Langkah 5: Buat Pull Request (PR) di Web GitHub
+## ❓ Pemecahan Masalah (Troubleshooting)
 
-1. Buka halaman repositori **AntriSehat** di browser GitHub.
-2. Kamu akan melihat spanduk kuning bertuliskan **"Compare & pull request"** untuk branch fiturnya. Klik tombol tersebut.
-3. Beri judul dan deskripsi singkat mengenai perubahan yang kamu buat.
-4. Klik **Create pull request**.
-5. Beritahu **Nanda (Tech Lead)** di grup untuk melakukan *review* dan penggabungan (*merge*) ke branch `main`.
+### Container `app` langsung berhenti (`Exited (1)`)
+
+Periksa log untuk detail error:
+```bash
+docker compose logs app
+```
+
+Penyebab umum:
+- **Database belum siap**: Tunggu hingga `antrisehat-db` berstatus `healthy`.
+- **Konfigurasi `.env` salah**: Pastikan `DB_HOST=db` dan password sesuai.
+- **Image belum ada**: Pastikan `DOCKERHUB_USER` di `.env` sudah benar.
+
+### Port 8000 sudah dipakai proses lain
+
+```bash
+# Cek proses yang menggunakan port 8000
+ss -tulpn | grep 8000
+
+# Hentikan proses tersebut atau ganti port di compose.yaml:
+# ports:
+#   - "8001:8000"   ← host port diubah ke 8001
+```
+
+### Port 8080 (Jenkins) sudah dipakai
+
+```bash
+ss -tulpn | grep 8080
+# Jika ada proses lain, hentikan atau ganti port Jenkins di compose.yaml
+```
+
+### Database tidak bisa diakses
+
+```bash
+# Cek log database
+docker compose logs db
+
+# Coba koneksi manual ke database
+docker exec -it antrisehat-db psql -U postgres -d antrisehat_db -c "\dt"
+```
 
 ---
-
-#### Langkah 6: Bersihkan Branch Lokal (Setelah PR Di-merge)
-
-Jika PR sudah disetujui dan digabungkan oleh Tech Lead ke `main`:
-
-```powershell
-# 1. Kembali ke branch main lokal
-git checkout main
-
-# 2. Tarik hasil merge terbaru dari GitHub
-git pull origin main
-
-```
